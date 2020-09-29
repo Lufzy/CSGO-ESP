@@ -9,6 +9,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -50,6 +51,9 @@ namespace CSGOESP
 
             [DllImport("user32.dll")]
             public static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
+
+            [DllImport("user32.dll")]
+            public static extern short GetAsyncKeyState(System.Windows.Forms.Keys vKey);
         }
 
         public static Form Overlay = new Form();
@@ -78,17 +82,17 @@ namespace CSGOESP
             Overlay.Left = rect.left;
 
             #region Timers
-            Timer Resize = new Timer();
+            System.Windows.Forms.Timer Resize = new System.Windows.Forms.Timer();
             Resize.Tick += new EventHandler(Resize_Tick);
             Resize.Interval = 1;
             Resize.Start();
 
-            Timer onlyFocus = new Timer();
+            System.Windows.Forms.Timer onlyFocus = new System.Windows.Forms.Timer();
             onlyFocus.Tick += new EventHandler(onlyFocus_Tick);
             onlyFocus.Interval = 10;
             onlyFocus.Start();
 
-            Timer onlyWindow = new Timer();
+            System.Windows.Forms.Timer onlyWindow = new System.Windows.Forms.Timer();
             onlyWindow.Tick += new EventHandler(onlyWindow_Tick);
             onlyWindow.Interval = 500;
             onlyWindow.Start();
@@ -110,20 +114,48 @@ namespace CSGOESP
                 {
                     if(Globals.WatermarkBG)
                     {
-                        g.FillRectangle(new SolidBrush(Color.FromArgb(100, Globals.WatermarkBGColor)), 10, 10, 530, 150);
-                        g.DrawRectangle(new Pen(Color.FromArgb(100, Color.White)), 10, 10, 530, 150);
+                        g.FillRectangle(new SolidBrush(Color.FromArgb(100, Globals.WatermarkBGColor)), 10, 10, 530, 165);
+                        g.DrawRectangle(new Pen(Color.FromArgb(100, Color.White)), 10, 10, 530, 165);
                     }
 
                     DrawStringOutlined("CSGOESP | free-software | " + DateTime.Now.ToString(), new Point(15, 15), new Font("Consolas", 15), Brushes.White, Pens.Black);
 
                     DrawStringOutlined("---------------------------------------------", new Point(15, 30), new Font("Consolas", 15), Brushes.White, Pens.Black);
                     //DrawStringOutlined("------------------------|--------------------", new Point(15, 30), new Font("Consolas", 15), Brushes.White, Pens.Black);
-                    DrawStringOutlined("BoxESP                  | " + Globals.BoxESP.ToString(), new Point(15, 45), new Font("Consolas", 15), Brushes.White, Pens.Black);
-                    DrawStringOutlined("SkeletonESP             | " + Globals.SkeletonESP.ToString(), new Point(15, 65), new Font("Consolas", 15), Brushes.White, Pens.Black);
-                    DrawStringOutlined("---------------------------------------------", new Point(15, 80), new Font("Consolas", 15), Brushes.White, Pens.Black);
-                    DrawStringOutlined("github.com/Lufzy/CSGO-ESP", new Point(15, 95), new Font("Consolas", 15), Brushes.White, Pens.Black);
-                    DrawStringOutlined("Offsets Date : 18.09.2020", new Point(15, 115), new Font("Consolas", 15), Brushes.White, Pens.Black);
-                    DrawStringOutlined("---------------------------------------------", new Point(15, 130), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    if(Globals.BoxESP)
+                    {
+                        DrawStringOutlined("BoxESP             [F6] | " + Globals.BoxESP.ToString(), new Point(15, 45), new Font("Consolas", 15), Brushes.Lime, Pens.Black);
+                    }
+                    else
+                    {
+                        DrawStringOutlined("BoxESP             [F6] | " + Globals.BoxESP.ToString(), new Point(15, 45), new Font("Consolas", 15), Brushes.Red, Pens.Black);
+                    }
+                    //DrawStringOutlined("BoxESP             [F5] | " + Globals.BoxESP.ToString(), new Point(15, 45), new Font("Consolas", 15), Brushes.White, Pens.Black);
+
+                    if(Globals.SkeletonESP)
+                    {
+                        DrawStringOutlined("SkeletonESP        [F7] | " + Globals.SkeletonESP.ToString(), new Point(15, 65), new Font("Consolas", 15), Brushes.Lime, Pens.Black);
+                    }
+                    else
+                    {
+                        DrawStringOutlined("SkeletonESP        [F7] | " + Globals.SkeletonESP.ToString(), new Point(15, 65), new Font("Consolas", 15), Brushes.Red, Pens.Black);
+                    }
+                    //DrawStringOutlined("SkeletonESP        [F6] | " + Globals.SkeletonESP.ToString(), new Point(15, 65), new Font("Consolas", 15), Brushes.White, Pens.Black);
+
+                    if(Globals.Snapline)
+                    {
+                        DrawStringOutlined("Snaplines          [F8] | " + Globals.Snapline.ToString(), new Point(15, 85), new Font("Consolas", 15), Brushes.Lime, Pens.Black);
+                    }
+                    else
+                    {
+                        DrawStringOutlined("Snaplines          [F8] | " + Globals.Snapline.ToString(), new Point(15, 85), new Font("Consolas", 15), Brushes.Red, Pens.Black);
+                    }
+                    //DrawStringOutlined("Snaplines          [F7] | " + Globals.Snapline.ToString(), new Point(15, 85), new Font("Consolas", 15), Brushes.White, Pens.Black);
+
+                    DrawStringOutlined("---------------------------------------------", new Point(15, 100), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    DrawStringOutlined("github.com/Lufzy/CSGO-ESP", new Point(15, 115), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    DrawStringOutlined("Offsets Date : 18.09.2020", new Point(15, 135), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    DrawStringOutlined("---------------------------------------------", new Point(15, 150), new Font("Consolas", 15), Brushes.White, Pens.Black);
                 }
 
                 int engine = bufferByte.Read<int>(Globals.Engine + signatures.dwClientState);
@@ -147,12 +179,16 @@ namespace CSGOESP
 
                         if(team == hisTeam && Globals.Teammate) // if teammate
                         {
-                            if(Globals.BoxESP)
-                            {
-                                Vector3 v3position = bufferByte.Read<Vector3>(entity + netvars.m_vecOrigin);
-                                Vector2 v2position = bufferByte.WorldToScreen(new Vector3(v3position.X, v3position.Y, v3position.Z - 5), Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
-                                Vector2 v2headpos = bufferByte.WorldToScreen(Globals.GetBonePos(Globals.GetBoneMatrixAddr(entity), 8)/*new Vector3(v3position.X, v3position.Y, v3position.Z + 10)*/, Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16)); // bone id : https://www.unknowncheats.me/forum/attachments/counterstrike-global-offensive/13413d1480413236-csgo-bone-id-8f0bb9a93378477388dee312b2fad4ca-png
+                            Vector3 v3position = bufferByte.Read<Vector3>(entity + netvars.m_vecOrigin);
+                            Vector2 v2position = bufferByte.WorldToScreen(new Vector3(v3position.X, v3position.Y, v3position.Z - 5), Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
+                            Vector2 v2headpos = bufferByte.WorldToScreen(Globals.GetBonePos(Globals.GetBoneMatrixAddr(entity), 8)/*new Vector3(v3position.X, v3position.Y, v3position.Z + 10)*/, Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16)); // bone id : https://www.unknowncheats.me/forum/attachments/counterstrike-global-offensive/13413d1480413236-csgo-bone-id-8f0bb9a93378477388dee312b2fad4ca-png
 
+                            if (Globals.Snapline && v2position != new Vector2(0, 0))
+                            {
+                                g.DrawLine(new Pen(Globals.teammateColor), Overlay.Width / 2, Overlay.Height, v2position.X, v2position.Y);
+                            }
+                            if (Globals.BoxESP && v2position != new Vector2(0, 0))
+                            {
                                 float BoxHeight = v2position.Y - v2headpos.Y;
                                 float BoxWidth = (BoxHeight / 2) * 1.25f; //little bit wider box
                                 DrawBorderedRectangle(new Pen(Globals.teammateColor), Pens.Black, v2position.X - (BoxWidth / 2), v2headpos.Y, BoxWidth, BoxHeight);
@@ -189,14 +225,19 @@ namespace CSGOESP
                         }
                         else if(team != hisTeam && Globals.Enemy)
                         {
-                            if(Globals.BoxESP)
-                            {
-                                Vector3 v3position = bufferByte.Read<Vector3>(entity + netvars.m_vecOrigin);
-                                Vector2 v2position = bufferByte.WorldToScreen(new Vector3(v3position.X, v3position.Y, v3position.Z /*- 5*/), Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
-                                Vector2 v2headpos = bufferByte.WorldToScreen(Globals.GetBonePos(Globals.GetBoneMatrixAddr(entity), 8)/*new Vector3(v3position.X, v3position.Y, v3position.Z + 10)*/, Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
+                            Vector3 v3position = bufferByte.Read<Vector3>(entity + netvars.m_vecOrigin);
+                            Vector2 v2position = bufferByte.WorldToScreen(new Vector3(v3position.X, v3position.Y, v3position.Z /*- 5*/), Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
+                            Vector2 v2headpos = bufferByte.WorldToScreen(Globals.GetBonePos(Globals.GetBoneMatrixAddr(entity), 8)/*new Vector3(v3position.X, v3position.Y, v3position.Z + 10)*/, Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
 
+                            if (Globals.Snapline && v2position != new Vector2(0, 0)) 
+                            {
+                                g.DrawLine(new Pen(Globals.enemyColor), Overlay.Width / 2, Overlay.Height, v2position.X, v2position.Y);
+                            }
+                            if(Globals.BoxESP && v2position != new Vector2(0, 0))
+                            {
                                 float BoxHeight = v2position.Y - v2headpos.Y;
                                 float BoxWidth = (BoxHeight / 2) * 1.25f; //little bit wider box
+
                                 DrawBorderedRectangle(new Pen(Globals.enemyColor), Pens.Black, v2position.X - (BoxWidth / 2), v2headpos.Y, BoxWidth, BoxHeight);
                                 try
                                 {
@@ -284,6 +325,12 @@ namespace CSGOESP
             return null;
         }
 
+        public static bool IsKeyPushedDown(System.Windows.Forms.Keys vKey)
+        {
+            return 0 != (Imports.GetAsyncKeyState(vKey) & 0x8000);
+        }
+
+
         private static void onlyFocus_Tick(object sender, EventArgs e)
         {
             Process[] p = Process.GetProcessesByName("csgo");
@@ -292,6 +339,25 @@ namespace CSGOESP
             {
                 Application.Exit();
                 Environment.Exit(0);
+            }
+
+            if(IsKeyPushedDown(Keys.F6))
+            {
+                Globals.BoxESP = !Globals.BoxESP;
+                Thread.Sleep(100);
+                Console.Beep(500, 500);
+            }
+            else if (IsKeyPushedDown(Keys.F7))
+            {
+                Globals.SkeletonESP = !Globals.SkeletonESP;
+                Thread.Sleep(100);
+                Console.Beep(500, 500);
+            }
+            else if(IsKeyPushedDown(Keys.F8))
+            {
+                Globals.Snapline = !Globals.Snapline;
+                Thread.Sleep(100);
+                Console.Beep(500, 500);
             }
         }
 

@@ -14,7 +14,7 @@ namespace CSGOESP
         public static int Client = -1, Engine = -1;
 
         public static bool ESP = true, Teammate = true, Enemy = true;
-        public static bool BoxESP = true, SkeletonESP = true, Watermark = true, WatermarkBG = false;
+        public static bool BoxESP = true, SkeletonESP = true, Snapline = true, Watermark = true, WatermarkBG = false;
         public static Color teammateColor = Color.Blue, enemyColor = Color.Red, WatermarkBGColor = Color.Black;
 
         public static int GetBoneMatrixAddr(int BaseAddr)

@@ -39,6 +39,7 @@
             this.pbSeperator = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.cbWatermark = new System.Windows.Forms.CheckBox();
+            this.cbSnapline = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pbTeammateColor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbEnemyColor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbSeperator)).BeginInit();
@@ -173,13 +174,29 @@
             this.cbWatermark.UseVisualStyleBackColor = true;
             this.cbWatermark.CheckedChanged += new System.EventHandler(this.cbWatermark_CheckedChanged);
             // 
+            // cbSnapline
+            // 
+            this.cbSnapline.AutoSize = true;
+            this.cbSnapline.Checked = true;
+            this.cbSnapline.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbSnapline.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.cbSnapline.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(244)))), ((int)(((byte)(244)))));
+            this.cbSnapline.Location = new System.Drawing.Point(11, 118);
+            this.cbSnapline.Name = "cbSnapline";
+            this.cbSnapline.Size = new System.Drawing.Size(74, 17);
+            this.cbSnapline.TabIndex = 10;
+            this.cbSnapline.Text = "Snapline";
+            this.cbSnapline.UseVisualStyleBackColor = true;
+            this.cbSnapline.CheckedChanged += new System.EventHandler(this.cbSnapline_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
-            this.ClientSize = new System.Drawing.Size(195, 126);
+            this.ClientSize = new System.Drawing.Size(195, 152);
+            this.Controls.Add(this.cbSnapline);
             this.Controls.Add(this.cbWatermark);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.pbSeperator);
@@ -216,6 +233,7 @@
         private System.Windows.Forms.PictureBox pbSeperator;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.CheckBox cbWatermark;
+        private System.Windows.Forms.CheckBox cbSnapline;
     }
 }
 

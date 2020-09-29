@@ -100,5 +100,10 @@ namespace CSGOESP
                 }
             }
         }
+
+        private void cbSnapline_CheckedChanged(object sender, EventArgs e)
+        {
+            Globals.Snapline = cbSnapline.Checked;
+        }
     }
 }
