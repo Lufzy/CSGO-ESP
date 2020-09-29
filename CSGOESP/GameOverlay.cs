@@ -104,8 +104,28 @@ namespace CSGOESP
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.CompositingQuality = CompositingQuality.HighQuality;
 
-            if(Globals.ESP) // 01:44
+            if(Globals.ESP)
             {
+                if(Globals.Watermark)
+                {
+                    if(Globals.WatermarkBG)
+                    {
+                        g.FillRectangle(new SolidBrush(Color.FromArgb(100, Globals.WatermarkBGColor)), 10, 10, 530, 150);
+                        g.DrawRectangle(new Pen(Color.FromArgb(100, Color.White)), 10, 10, 530, 150);
+                    }
+
+                    DrawStringOutlined("CSGOESP | free-software | " + DateTime.Now.ToString(), new Point(15, 15), new Font("Consolas", 15), Brushes.White, Pens.Black);
+
+                    DrawStringOutlined("---------------------------------------------", new Point(15, 30), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    //DrawStringOutlined("------------------------|--------------------", new Point(15, 30), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    DrawStringOutlined("BoxESP                  | " + Globals.BoxESP.ToString(), new Point(15, 45), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    DrawStringOutlined("SkeletonESP             | " + Globals.SkeletonESP.ToString(), new Point(15, 65), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    DrawStringOutlined("---------------------------------------------", new Point(15, 80), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    DrawStringOutlined("github.com/Lufzy/CSGO-ESP", new Point(15, 95), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    DrawStringOutlined("Offsets Date : 18.09.2020", new Point(15, 115), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                    DrawStringOutlined("---------------------------------------------", new Point(15, 130), new Font("Consolas", 15), Brushes.White, Pens.Black);
+                }
+
                 int engine = bufferByte.Read<int>(Globals.Engine + signatures.dwClientState);
                 int gameState = bufferByte.Read<int>(engine + signatures.dwClientState_State);
                 if(gameState == 6)
@@ -127,37 +147,87 @@ namespace CSGOESP
 
                         if(team == hisTeam && Globals.Teammate) // if teammate
                         {
-                            Vector3 v3position = bufferByte.Read<Vector3>(entity + netvars.m_vecOrigin);
-                            Vector2 v2position = bufferByte.WorldToScreen(new Vector3(v3position.X, v3position.Y, v3position.Z - 5), Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
-                            Vector2 v2headpos = bufferByte.WorldToScreen(Globals.GetBonePos(Globals.GetBoneMatrixAddr(entity), 8)/*new Vector3(v3position.X, v3position.Y, v3position.Z + 10)*/, Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16)); // bone id : https://www.unknowncheats.me/forum/attachments/counterstrike-global-offensive/13413d1480413236-csgo-bone-id-8f0bb9a93378477388dee312b2fad4ca-png
-
-                            float BoxHeight = v2position.Y - v2headpos.Y;
-                            float BoxWidth = (BoxHeight / 2) * 1.25f; //little bit wider box
-                            DrawBorderedRectangle(new Pen(Globals.teammateColor), Pens.Black, v2position.X - (BoxWidth / 2), v2headpos.Y, BoxWidth, BoxHeight);
-                            try
+                            if(Globals.BoxESP)
                             {
-                                Point textPos = new Point((int)v2position.X - (int)(BoxWidth / 2), (int)v2headpos.Y);
-                                //DrawStringOutlined("Mate", textPos, new Font("Consolas", BoxWidth / 8 + 1), Brushes.White, Pens.Black);
-                                DrawStringOutlined("Health : " + hishealth.ToString(), textPos, new Font("Consolas", BoxWidth / 16 + 1), Brushes.White, Pens.Black);
+                                Vector3 v3position = bufferByte.Read<Vector3>(entity + netvars.m_vecOrigin);
+                                Vector2 v2position = bufferByte.WorldToScreen(new Vector3(v3position.X, v3position.Y, v3position.Z - 5), Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
+                                Vector2 v2headpos = bufferByte.WorldToScreen(Globals.GetBonePos(Globals.GetBoneMatrixAddr(entity), 8)/*new Vector3(v3position.X, v3position.Y, v3position.Z + 10)*/, Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16)); // bone id : https://www.unknowncheats.me/forum/attachments/counterstrike-global-offensive/13413d1480413236-csgo-bone-id-8f0bb9a93378477388dee312b2fad4ca-png
+
+                                float BoxHeight = v2position.Y - v2headpos.Y;
+                                float BoxWidth = (BoxHeight / 2) * 1.25f; //little bit wider box
+                                DrawBorderedRectangle(new Pen(Globals.teammateColor), Pens.Black, v2position.X - (BoxWidth / 2), v2headpos.Y, BoxWidth, BoxHeight);
+                                try
+                                {
+                                    Point textPos = new Point((int)v2position.X - (int)(BoxWidth / 2), (int)v2headpos.Y);
+                                    //DrawStringOutlined("Mate", textPos, new Font("Consolas", BoxWidth / 8 + 1), Brushes.White, Pens.Black);
+                                    DrawStringOutlined("Health : " + hishealth.ToString(), textPos, new Font("Consolas", BoxWidth / 16 + 1), Brushes.White, Pens.Black);
+                                }
+                                catch { }
                             }
-                            catch { }
+
+                            if(Globals.SkeletonESP) // buggly | https://www.unknowncheats.me/forum/counterstrike-global-offensive/218227-skeleton-esp-bone-ids.html
+                            {
+                                // skeleton esp | Bone Ids : https://www.unknowncheats.me/forum/attachments/counterstrike-global-offensive/13413d1480413236-csgo-bone-id-8f0bb9a93378477388dee312b2fad4ca-png
+
+                                DrawBone(8, 7, entity, new Pen(Globals.teammateColor)); // Neck
+                                DrawBone(7, 41, entity, new Pen(Globals.teammateColor)); // Left Shoulder
+                                DrawBone(7, 11, entity, new Pen(Globals.teammateColor)); // Right Shoulder
+                                DrawBone(41, 42, entity, new Pen(Globals.teammateColor)); // Left Arm 1
+                                DrawBone(11, 12, entity, new Pen(Globals.teammateColor)); // Right Arm 1
+                                DrawBone(42, 43, entity, new Pen(Globals.teammateColor)); // Left Arm 2
+                                DrawBone(12, 13, entity, new Pen(Globals.teammateColor)); // Right Arm 2
+                                DrawBone(7, 6, entity, new Pen(Globals.teammateColor)); // Upper Body
+                                DrawBone(6, 5, entity, new Pen(Globals.teammateColor)); // Middle Body
+                                DrawBone(5, 3, entity, new Pen(Globals.teammateColor)); // Lower Body
+                                DrawBone(3, 77, entity, new Pen(Globals.teammateColor)); // Left Pelvis
+                                DrawBone(3, 70, entity, new Pen(Globals.teammateColor)); // Right Pelvis
+                                DrawBone(77, 78, entity, new Pen(Globals.teammateColor)); // Left Leg
+                                DrawBone(70, 71, entity, new Pen(Globals.teammateColor)); // Right Leg
+                                DrawBone(78, 79, entity, new Pen(Globals.teammateColor)); // Left Shin
+                                DrawBone(71, 72, entity, new Pen(Globals.teammateColor)); // Right Shin
+                            }
                         }
                         else if(team != hisTeam && Globals.Enemy)
                         {
-                            Vector3 v3position = bufferByte.Read<Vector3>(entity + netvars.m_vecOrigin);
-                            Vector2 v2position = bufferByte.WorldToScreen(new Vector3(v3position.X, v3position.Y, v3position.Z /*- 5*/), Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
-                            Vector2 v2headpos = bufferByte.WorldToScreen(Globals.GetBonePos(Globals.GetBoneMatrixAddr(entity), 8)/*new Vector3(v3position.X, v3position.Y, v3position.Z + 10)*/, Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
-
-                            float BoxHeight = v2position.Y - v2headpos.Y;
-                            float BoxWidth = (BoxHeight / 2) * 1.25f; //little bit wider box
-                            DrawBorderedRectangle(new Pen(Globals.enemyColor), Pens.Black, v2position.X - (BoxWidth / 2), v2headpos.Y, BoxWidth, BoxHeight);
-                            try
+                            if(Globals.BoxESP)
                             {
-                                Point textPos = new Point((int)v2position.X - (int)(BoxWidth / 2), (int)v2headpos.Y);
-                                //DrawStringOutlined("Enemy", new Point((int)v2position.X - (int)(BoxWidth / 2), (int)v2headpos.Y), new Font("Consolas", BoxWidth / 8 + 1), Brushes.White, Pens.Black);
-                                DrawStringOutlined("Health : " + hishealth.ToString(), textPos, new Font("Consolas", BoxWidth / 16 + 1), Brushes.White, Pens.Black);
+                                Vector3 v3position = bufferByte.Read<Vector3>(entity + netvars.m_vecOrigin);
+                                Vector2 v2position = bufferByte.WorldToScreen(new Vector3(v3position.X, v3position.Y, v3position.Z /*- 5*/), Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
+                                Vector2 v2headpos = bufferByte.WorldToScreen(Globals.GetBonePos(Globals.GetBoneMatrixAddr(entity), 8)/*new Vector3(v3position.X, v3position.Y, v3position.Z + 10)*/, Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
+
+                                float BoxHeight = v2position.Y - v2headpos.Y;
+                                float BoxWidth = (BoxHeight / 2) * 1.25f; //little bit wider box
+                                DrawBorderedRectangle(new Pen(Globals.enemyColor), Pens.Black, v2position.X - (BoxWidth / 2), v2headpos.Y, BoxWidth, BoxHeight);
+                                try
+                                {
+                                    Point textPos = new Point((int)v2position.X - (int)(BoxWidth / 2), (int)v2headpos.Y);
+                                    //DrawStringOutlined("Enemy", new Point((int)v2position.X - (int)(BoxWidth / 2), (int)v2headpos.Y), new Font("Consolas", BoxWidth / 8 + 1), Brushes.White, Pens.Black);
+                                    DrawStringOutlined("Health : " + hishealth.ToString(), textPos, new Font("Consolas", BoxWidth / 16 + 1), Brushes.White, Pens.Black);
+                                }
+                                catch { }
                             }
-                            catch { }
+
+                            if(Globals.SkeletonESP) // buggly | https://www.unknowncheats.me/forum/counterstrike-global-offensive/218227-skeleton-esp-bone-ids.html
+                            {
+                                // skeleton esp | Bone Ids : https://www.unknowncheats.me/forum/attachments/counterstrike-global-offensive/13413d1480413236-csgo-bone-id-8f0bb9a93378477388dee312b2fad4ca-png
+
+                                DrawBone(8, 7, entity, new Pen(Globals.enemyColor)); // Neck
+                                DrawBone(7, 41, entity, new Pen(Globals.enemyColor)); // Left Shoulder
+                                DrawBone(7, 11, entity, new Pen(Globals.enemyColor)); // Right Shoulder
+                                DrawBone(41, 42, entity, new Pen(Globals.enemyColor)); // Left Arm 1
+                                DrawBone(11, 12, entity, new Pen(Globals.enemyColor)); // Right Arm 1
+                                DrawBone(42, 43, entity, new Pen(Globals.enemyColor)); // Left Arm 2
+                                DrawBone(12, 13, entity, new Pen(Globals.enemyColor)); // Right Arm 2
+                                DrawBone(7, 6, entity, new Pen(Globals.enemyColor)); // Upper Body
+                                DrawBone(6, 5, entity, new Pen(Globals.enemyColor)); // Middle Body
+                                DrawBone(5, 3, entity, new Pen(Globals.enemyColor)); // Lower Body
+                                DrawBone(3, 77, entity, new Pen(Globals.enemyColor)); // Left Pelvis
+                                DrawBone(3, 70, entity, new Pen(Globals.enemyColor)); // Right Pelvis
+                                DrawBone(77, 78, entity, new Pen(Globals.enemyColor)); // Left Leg
+                                DrawBone(70, 71, entity, new Pen(Globals.enemyColor)); // Right Leg
+                                DrawBone(78, 79, entity, new Pen(Globals.enemyColor)); // Left Shin
+                                DrawBone(71, 72, entity, new Pen(Globals.enemyColor)); // Right Shin
+                            }
                         }
                     }
                 }
@@ -180,6 +250,15 @@ namespace CSGOESP
                 pos, new StringFormat());
             g.DrawPath(colorOutline, path);
             g.FillPath(colorText, path);
+        }
+
+        public static void DrawBone(int bone, int bone1, int entity, Pen color)
+        {
+            Vector3 v3Bone = Globals.GetBonePos(Globals.GetBoneMatrixAddr(entity), bone);
+            Vector3 v3Bone1 = Globals.GetBonePos(Globals.GetBoneMatrixAddr(entity), bone1);
+            Vector2 v2Bone = bufferByte.WorldToScreen(v3Bone, Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
+            Vector2 v2Bone1 = bufferByte.WorldToScreen(v3Bone1, Overlay.Width, Overlay.Height, bufferByte.ReadMatrix<float>(Globals.Client + signatures.dwViewMatrix, 16));
+            g.DrawLine(color, v2Bone.X, v2Bone.Y, v2Bone1.X, v2Bone1.Y);
         }
 
         private static void Resize_Tick(object sender, EventArgs e)

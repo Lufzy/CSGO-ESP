@@ -68,5 +68,37 @@ namespace CSGOESP
             pbEnemyColor.BackColor = cd.Color;
             Globals.enemyColor = cd.Color;
         }
+
+        private void cbBoxESP_CheckedChanged(object sender, EventArgs e)
+        {
+            Globals.BoxESP = cbBoxESP.Checked;
+        }
+
+        private void cbSkeletonESP_CheckedChanged(object sender, EventArgs e)
+        {
+            Globals.SkeletonESP = cbSkeletonESP.Checked;
+        }
+
+        private void cbWatermark_CheckedChanged(object sender, EventArgs e)
+        {
+            Globals.Watermark = cbWatermark.Checked;
+
+            if(Globals.Watermark)
+            {
+                DialogResult result = MessageBox.Show("Add Background for Watermark?", "CSGOESP", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                if (result == DialogResult.Yes)
+                {
+                    ColorDialog cd = new ColorDialog();
+                    cd.ShowDialog();
+
+                    Globals.WatermarkBG = true;
+                    Globals.WatermarkBGColor = cd.Color;
+                }
+                else
+                {
+                    Globals.WatermarkBG = false;
+                }
+            }
+        }
     }
 }
